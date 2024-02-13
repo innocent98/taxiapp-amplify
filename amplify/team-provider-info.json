@@ -1,0 +1,30 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-taxiapp-dev-225329-authRole",
+      "UnauthRoleArn": "arn:aws:iam::891376921639:role/amplify-taxiapp-dev-225329-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::891376921639:role/amplify-taxiapp-dev-225329-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-taxiapp-dev-225329-deployment",
+      "UnauthRoleName": "amplify-taxiapp-dev-225329-unauthRole",
+      "StackName": "amplify-taxiapp-dev-225329",
+      "StackId": "arn:aws:cloudformation:us-east-1:891376921639:stack/amplify-taxiapp-dev-225329/62b36040-c930-11ee-ad13-0e284c63dbbf",
+      "AmplifyAppId": "d23l0e36hjo5vq",
+      "AuthTriggerTemplateURL": "https://s3.amazonaws.com/amplify-taxiapp-dev-225329-deployment/amplify-cfn-templates/auth/auth-trigger-cloudformation-template.json"
+    },
+    "categories": {
+      "auth": {
+        "taxiapp9dd979f89dd979f8": {}
+      },
+      "function": {
+        "taxiapp9dd979f89dd979f8PostConfirmation": {
+          "deploymentBucketName": "amplify-taxiapp-dev-225329-deployment",
+          "s3Key": "amplify-builds/taxiapp9dd979f89dd979f8PostConfirmation-61774173684156724635-build.zip"
+        }
+      },
+      "api": {
+        "taxiapp": {}
+      }
+    }
+  }
+}
