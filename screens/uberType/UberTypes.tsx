@@ -4,16 +4,32 @@ import UberType from '../../components/uberType/UberType';
 import {uberType} from '../../assets/UberAssets/data/types';
 import {styles} from '../../constants/utils/styles';
 
-const UberTypes = () => {
-  const confirm = () => {};
+interface ScreenProps {
+  selectedType: any;
+  setSelectedType: (value: any) => void;
+  onSubmit: () => void;
+}
 
+const UberTypes: React.FC<ScreenProps> = ({
+  selectedType,
+  setSelectedType,
+  onSubmit,
+}) => {
   return (
     <View>
       {uberType.map((item, index) => (
-        <UberType key={index} item={item} />
+        <UberType
+          key={index}
+          item={item}
+          isSelected={item.type === selectedType}
+          onPress={() => setSelectedType(item.type)}
+        />
       ))}
 
-      <Pressable onPress={confirm} style={styles.button}>
+      <Pressable
+        onPress={onSubmit}
+        disabled={!selectedType}
+        style={styles.button}>
         <Text style={styles.buttonText}>Confirm Uber</Text>
       </Pressable>
     </View>

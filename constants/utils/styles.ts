@@ -46,7 +46,7 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    width: itemWidth * 0.2,
+    width: itemWidth * 0.215,
     borderRadius: SIZES.font,
     padding: SIZES.nano,
     gap: 5,

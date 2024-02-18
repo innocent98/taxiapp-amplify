@@ -9,9 +9,7 @@ import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import React, {useEffect} from 'react';
 import {
   Platform,
-  Pressable,
   StatusBar,
-  Text,
   useColorScheme,
 } from 'react-native';
 

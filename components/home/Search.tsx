@@ -21,7 +21,7 @@ const Search = () => {
     <View style={{padding: 15, backgroundColor: COLORS.light.backgroundSoft}}>
       <Pressable
         onPress={() => handleNavigation('DestinationSearch')}
-        style={[styles.flex, {backgroundColor: COLORS.light.lightGrey}]}>
+        style={[styles.flex, {backgroundColor: COLORS.light.lightGrey, paddingVertical: 15}]}>
         <Text
           style={[
             styles.smallText,

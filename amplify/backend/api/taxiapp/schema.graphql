@@ -6,4 +6,42 @@ type User @model {
   id: ID!
   username: String!
   email: String!
+
+  orders: [Order] @hasMany(fields: ["id"])
+  car: Car @hasOne(fields: ["id"])
+}
+
+type Car @model {
+  id: ID!
+  type: String!
+  latitude: Float
+  longitude: Float
+  heading: Float
+  isActive: Boolean
+
+  orders: [Order] @hasMany(fields: ["id"])
+
+  userId: ID!
+  user: User @hasOne(fields: ["userId"])
+}
+
+type Order @model {
+  id: ID! @primaryKey
+  createdAt: ID!
+  
+  type: String!
+  status: String
+
+  originLatitude: Float!
+  originLongitude: Float!
+
+  destinationLatitude: Float!
+  destinationLongitude: Float!
+
+  userId: ID!
+  user: User @hasOne(fields: ["userId"])
+
+  carId: ID!
+  car: Car @hasOne(fields: ["carId"])
+
 }

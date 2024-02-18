@@ -8,14 +8,57 @@ import PlaceRow from '../../components/destination/PlaceRow';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {StackParamList} from '../../navigations/Navigation';
 import {useNavigation} from '@react-navigation/native';
+import Geolocation from '@react-native-community/geolocation';
 
 type NavigationProp = StackNavigationProp<StackParamList>;
 
 const DestinationSearch = () => {
   const navigation = useNavigation<NavigationProp>();
 
+  const [currentLoc, setCurrentLoc] = useState<null | any>(null);
+  const [address, setAddress] = useState<null | any>(null);
   const [originPlace, setOriginPlace] = useState<any | null>(null);
   const [destinationPlace, setDestinationPlace] = useState<any | null>(null);
+
+  const reverseGeocode = (lat: number, lng: number) => {
+    // Use a geocoding API or service to get address details from coordinates
+    // You can use services like OpenCage, Google Maps Geocoding, etc.
+    // const apiKey = 'YOUR_GEOCODING_API_KEY';
+    const apiUrl = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${googleApi}`;
+
+    fetch(apiUrl)
+      .then(response => response.json())
+      .then(data => {
+        console.log(data?.results[0]?.formatted_address);
+        if (data.results && data.results.length > 0) {
+          const formattedAddress = data?.results[0]?.formatted_address;
+          setAddress(formattedAddress);
+        } else {
+          setAddress('Address not found');
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching reverse geocoding:', error);
+        setAddress('Error fetching address');
+      });
+  };
+
+  useEffect(() => {
+    // Get current location
+    Geolocation.getCurrentPosition(
+      position => {
+        const {latitude, longitude} = position.coords;
+        setCurrentLoc({latitude, longitude});
+
+        reverseGeocode(latitude, longitude);
+      },
+
+      error => console.log('Error getting location:', error),
+      {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000},
+    );
+  }, []);
+
+  // console.log(address);
 
   const homePlace = {
     description: 'Home',
@@ -39,7 +82,7 @@ const DestinationSearch = () => {
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.inputCon}>
         <GooglePlacesAutocomplete
-          placeholder="Current Location"
+          placeholder={address ? address.substring(0, 40) : 'Current Location'}
           minLength={2}
           nearbyPlacesAPI="GooglePlacesSearch"
           fetchDetails

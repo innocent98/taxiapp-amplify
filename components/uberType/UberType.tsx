@@ -1,4 +1,4 @@
-import {View, Text, Image} from 'react-native';
+import {View, Text, Image, Pressable} from 'react-native';
 import React from 'react';
 import {styles} from '../../constants/utils/styles';
 import {COLORS, SIZES} from '../../constants';
@@ -12,9 +12,11 @@ interface uberType {
     price: number;
     duration: number;
   };
+  isSelected: boolean;
+  onPress: () => void;
 }
 
-const UberType: React.FC<uberType> = ({item}) => {
+const UberType: React.FC<uberType> = ({item, isSelected, onPress}) => {
   const {itemHeight} = ScreenSizes();
 
   const getImageSource = (type: String) => {
@@ -31,11 +33,12 @@ const UberType: React.FC<uberType> = ({item}) => {
   };
 
   return (
-    <View
+    <Pressable
+      onPress={onPress}
       style={[
         styles.flex,
         {
-          backgroundColor: COLORS.light.background,
+          backgroundColor: isSelected? '#efefef' : COLORS.light.background,
           height: itemHeight * 0.085,
           paddingHorizontal: 15,
         },
@@ -92,7 +95,7 @@ const UberType: React.FC<uberType> = ({item}) => {
           {item.duration}
         </Text>
       </View>
-    </View>
+    </Pressable>
   );
 };
 
