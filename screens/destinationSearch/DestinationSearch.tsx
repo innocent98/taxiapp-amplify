@@ -9,65 +9,64 @@ import {StackNavigationProp} from '@react-navigation/stack';
 import {StackParamList} from '../../navigations/Navigation';
 import {useNavigation} from '@react-navigation/native';
 import Geolocation from '@react-native-community/geolocation';
+import useLocation from '../../constants/hooks/useLocation';
 
 type NavigationProp = StackNavigationProp<StackParamList>;
 
 const DestinationSearch = () => {
   const navigation = useNavigation<NavigationProp>();
 
-  const [currentLoc, setCurrentLoc] = useState<null | any>(null);
-  const [address, setAddress] = useState<null | any>(null);
+  const {location, address} = useLocation();
+
   const [originPlace, setOriginPlace] = useState<any | null>(null);
   const [destinationPlace, setDestinationPlace] = useState<any | null>(null);
-
-  const reverseGeocode = (lat: number, lng: number) => {
-    // Use a geocoding API or service to get address details from coordinates
-    // You can use services like OpenCage, Google Maps Geocoding, etc.
-    // const apiKey = 'YOUR_GEOCODING_API_KEY';
-    const apiUrl = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${googleApi}`;
-
-    fetch(apiUrl)
-      .then(response => response.json())
-      .then(data => {
-        console.log(data?.results[0]?.formatted_address);
-        if (data.results && data.results.length > 0) {
-          const formattedAddress = data?.results[0]?.formatted_address;
-          setAddress(formattedAddress);
-        } else {
-          setAddress('Address not found');
-        }
-      })
-      .catch(error => {
-        console.error('Error fetching reverse geocoding:', error);
-        setAddress('Error fetching address');
-      });
-  };
-
-  useEffect(() => {
-    // Get current location
-    Geolocation.getCurrentPosition(
-      position => {
-        const {latitude, longitude} = position.coords;
-        setCurrentLoc({latitude, longitude});
-
-        reverseGeocode(latitude, longitude);
-      },
-
-      error => console.log('Error getting location:', error),
-      {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000},
-    );
-  }, []);
-
-  // console.log(address);
+  const [airportDesc, setAirportDesc] = useState('');
 
   const homePlace = {
     description: 'Home',
     geometry: {location: {lat: 48.8152937, lng: 2.4597668}},
   };
+
   const workPlace = {
     description: 'Work',
     geometry: {location: {lat: 48.8496818, lng: 2.2940881}},
   };
+
+  // reverse geocode for destination set to the airport
+  const reverseGeocode = (lat: number, lng: number) => {
+    const apiUrl = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${googleApi}`;
+
+    fetch(apiUrl)
+      .then(response => response.json())
+      .then(data => {
+        if (data.results && data.results.length > 0) {
+          const formattedAddress = data?.results[0]?.formatted_address;
+
+          setAirportDesc(formattedAddress.substring(0, 40));
+        } else {
+          return;
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching reverse geocoding:', error);
+      });
+  };
+
+  // // update the destination place
+  // useEffect(() => {
+  //   setDestinationPlace({
+  //     details: {
+  //       geometry: {
+  //         location: {
+  //           lat: 4.8717055,
+  //           lng: 8.08957,
+  //         },
+  //       },
+  //     },
+  //   });
+
+  //   reverseGeocode(4.8717055, 8.08957);
+  // }, []);
 
   useEffect(() => {
     if (originPlace && destinationPlace) {
@@ -78,28 +77,37 @@ const DestinationSearch = () => {
     }
   }, [originPlace, destinationPlace]);
 
+  useEffect(() => {
+    // setOriginPlace(location);
+  }, []);
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.inputCon}>
         <GooglePlacesAutocomplete
-          placeholder={address ? address.substring(0, 40) : 'Current Location'}
+          placeholder={'Where from?'}
           minLength={2}
           nearbyPlacesAPI="GooglePlacesSearch"
-          fetchDetails
+          fetchDetails={true}
           onPress={(data, details = null) => {
-            // 'details' is provided when fetchDetails = true
             setOriginPlace({data, details});
-            // console.log(data, details);
           }}
           currentLocation={true}
-          currentLocationLabel="Current Location"
+          currentLocationLabel={'My Current Location'}
           query={{
             key: googleApi,
             language: 'en',
+            radius: 5000,
+            location: {
+              latitude: location?.details.geometry.location.lat,
+              longitude: location?.details.geometry.location.lng,
+            },
+            components: 'country:ng',
           }}
           predefinedPlacesAlwaysVisible={true}
           textInputProps={{
             placeholderTextColor: COLORS.light.link,
+            defaultValue: address,
           }}
           styles={{
             description: {
@@ -130,17 +138,23 @@ const DestinationSearch = () => {
           nearbyPlacesAPI="GooglePlacesSearch"
           fetchDetails
           onPress={(data, details = null) => {
-            // 'details' is provided when fetchDetails = true
             setDestinationPlace({data, details});
-            // console.log(data, details);
           }}
           query={{
             key: googleApi,
             language: 'en',
+            radius: 5000,
+            location: {
+              latitude: location?.details.geometry.location.lat,
+              longitude: location?.details.geometry.location.lng,
+            },
+            components: 'country:ng',
           }}
           predefinedPlacesAlwaysVisible={true}
           textInputProps={{
             placeholderTextColor: COLORS.light.black,
+            // value: airportDesc,
+            // editable: false,
           }}
           styles={{
             description: {

@@ -12,11 +12,19 @@ interface uberType {
     price: number;
     duration: number;
   };
+  distance: number;
+  ratePerKm: number;
   isSelected: boolean;
   onPress: () => void;
 }
 
-const UberType: React.FC<uberType> = ({item, isSelected, onPress}) => {
+const UberType: React.FC<uberType> = ({
+  item,
+  distance,
+  ratePerKm,
+  isSelected,
+  onPress,
+}) => {
   const {itemHeight} = ScreenSizes();
 
   const getImageSource = (type: String) => {
@@ -32,13 +40,15 @@ const UberType: React.FC<uberType> = ({item, isSelected, onPress}) => {
     }
   };
 
+  const price = item.price + distance * ratePerKm;
+
   return (
     <Pressable
       onPress={onPress}
       style={[
         styles.flex,
         {
-          backgroundColor: isSelected? '#efefef' : COLORS.light.background,
+          backgroundColor: isSelected ? '#efefef' : COLORS.light.background,
           height: itemHeight * 0.085,
           paddingHorizontal: 15,
         },
@@ -83,7 +93,7 @@ const UberType: React.FC<uberType> = ({item, isSelected, onPress}) => {
               styles.mediumText,
               {color: COLORS.light.black, fontSize: SIZES.font},
             ]}>
-            est. ${item.price}
+            est. ${price.toFixed(2)}
           </Text>
         </View>
 

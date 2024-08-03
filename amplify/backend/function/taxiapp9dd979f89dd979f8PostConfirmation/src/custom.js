@@ -15,8 +15,10 @@ exports.handler = async (event, context) => {
     Item: {
       id: {S: event.request.userAttributes.sub},
       __typename: {S: 'User'},
-      username: {S: event.userName},
-      email: {S: event.request.userAttributes.sub},
+      username: {S: event.request.userAttributes.email},
+      email: {S: event.request.userAttributes.email},
+      firstName: {S: event.request.userAttributes.given_name},
+      lastName: {S: event.request.userAttributes.family_name},
       createdAt: {S: data.toISOString()},
       updatedAt: {S: data.toISOString()},
     },

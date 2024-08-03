@@ -8,12 +8,16 @@ interface ScreenProps {
   selectedType: any;
   setSelectedType: (value: any) => void;
   onSubmit: () => void;
+  distance: number;
+  ratePerKm: number;
 }
 
 const UberTypes: React.FC<ScreenProps> = ({
   selectedType,
   setSelectedType,
   onSubmit,
+  distance,
+  ratePerKm,
 }) => {
   return (
     <View>
@@ -21,6 +25,8 @@ const UberTypes: React.FC<ScreenProps> = ({
         <UberType
           key={index}
           item={item}
+          distance={distance}
+          ratePerKm={ratePerKm}
           isSelected={item.type === selectedType}
           onPress={() => setSelectedType(item.type)}
         />

@@ -1,11 +1,17 @@
 # This "input" configures a global authorization rule to enable public access to
 # all models in this schema. Learn more about authorization rules here: https://docs.amplify.aws/cli/graphql/authorization-rules
-input AMPLIFY { globalAuthRule: AuthRule = { allow: public } } # FOR TESTING ONLY!
-
+input AMPLIFY {
+  globalAuthRule: AuthRule = {allow: public}
+} # FOR TESTING ONLY!
 type User @model {
   id: ID!
   username: String!
   email: String!
+  firstName: String
+  lastName: String
+  userRole: String
+  country: String
+  wallet: Float
 
   orders: [Order] @hasMany(fields: ["id"])
   car: Car @hasOne(fields: ["id"])
@@ -18,8 +24,13 @@ type Car @model {
   longitude: Float
   heading: Float
   isActive: Boolean
+  status: String
 
-  orders: [Order] @hasMany(fields: ["id"])
+  arrivalDuration: Float
+  arrivalDistance: Float
+
+  orderId: ID
+  orders: [Order] @hasMany(fields: ["orderId"])
 
   userId: ID!
   user: User @hasOne(fields: ["userId"])
@@ -27,10 +38,10 @@ type Car @model {
 
 type Order @model {
   id: ID! @primaryKey
-  createdAt: ID!
-  
   type: String!
+
   status: String
+  amount: Float
 
   originLatitude: Float!
   originLongitude: Float!
@@ -44,4 +55,11 @@ type Order @model {
   carId: ID!
   car: Car @hasOne(fields: ["carId"])
 
+  driverId: ID
+  driver: User @hasOne(fields: ["driverId"])
+}
+
+type Subscription {
+  onOrderUpdated(id: ID!): Order @aws_subscribe(mutations: ["updateOrder"])
+  onCarUpdated(id: ID!): Car @aws_subscribe(mutations: ["updateCar"])
 }

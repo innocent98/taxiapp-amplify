@@ -19,7 +19,7 @@
       "function": {
         "taxiapp9dd979f89dd979f8PostConfirmation": {
           "deploymentBucketName": "amplify-taxiapp-dev-225329-deployment",
-          "s3Key": "amplify-builds/taxiapp9dd979f89dd979f8PostConfirmation-61774173684156724635-build.zip"
+          "s3Key": "amplify-builds/taxiapp9dd979f89dd979f8PostConfirmation-6f4b655a6e6a4b7a6339-build.zip"
         }
       },
       "api": {

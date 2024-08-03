@@ -1,12 +1,116 @@
 /* eslint-disable */
 // this is an auto generated file. This will be overwritten
 
+export const onOrderUpdated = /* GraphQL */ `
+  subscription OnOrderUpdated($id: ID!) {
+    onOrderUpdated(id: $id) {
+      id
+      type
+      status
+      amount
+      originLatitude
+      originLongitude
+      destinationLatitude
+      destinationLongitude
+      userId
+      user {
+        id
+        username
+        email
+        firstName
+        lastName
+        userRole
+        country
+        wallet
+        createdAt
+        updatedAt
+        __typename
+      }
+      carId
+      car {
+        id
+        type
+        latitude
+        longitude
+        heading
+        isActive
+        status
+        arrivalDuration
+        arrivalDistance
+        orderId
+        userId
+        createdAt
+        updatedAt
+        __typename
+      }
+      driverId
+      driver {
+        id
+        username
+        email
+        firstName
+        lastName
+        userRole
+        country
+        wallet
+        createdAt
+        updatedAt
+        __typename
+      }
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const onCarUpdated = /* GraphQL */ `
+  subscription OnCarUpdated($id: ID!) {
+    onCarUpdated(id: $id) {
+      id
+      type
+      latitude
+      longitude
+      heading
+      isActive
+      status
+      arrivalDuration
+      arrivalDistance
+      orderId
+      orders {
+        nextToken
+        __typename
+      }
+      userId
+      user {
+        id
+        username
+        email
+        firstName
+        lastName
+        userRole
+        country
+        wallet
+        createdAt
+        updatedAt
+        __typename
+      }
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
 export const onCreateUser = /* GraphQL */ `
   subscription OnCreateUser($filter: ModelSubscriptionUserFilterInput) {
     onCreateUser(filter: $filter) {
       id
       username
       email
+      firstName
+      lastName
+      userRole
+      country
+      wallet
       orders {
         nextToken
         __typename
@@ -18,6 +122,10 @@ export const onCreateUser = /* GraphQL */ `
         longitude
         heading
         isActive
+        status
+        arrivalDuration
+        arrivalDistance
+        orderId
         userId
         createdAt
         updatedAt
@@ -35,6 +143,11 @@ export const onUpdateUser = /* GraphQL */ `
       id
       username
       email
+      firstName
+      lastName
+      userRole
+      country
+      wallet
       orders {
         nextToken
         __typename
@@ -46,6 +159,10 @@ export const onUpdateUser = /* GraphQL */ `
         longitude
         heading
         isActive
+        status
+        arrivalDuration
+        arrivalDistance
+        orderId
         userId
         createdAt
         updatedAt
@@ -63,6 +180,11 @@ export const onDeleteUser = /* GraphQL */ `
       id
       username
       email
+      firstName
+      lastName
+      userRole
+      country
+      wallet
       orders {
         nextToken
         __typename
@@ -74,6 +196,10 @@ export const onDeleteUser = /* GraphQL */ `
         longitude
         heading
         isActive
+        status
+        arrivalDuration
+        arrivalDistance
+        orderId
         userId
         createdAt
         updatedAt
@@ -94,6 +220,10 @@ export const onCreateCar = /* GraphQL */ `
       longitude
       heading
       isActive
+      status
+      arrivalDuration
+      arrivalDistance
+      orderId
       orders {
         nextToken
         __typename
@@ -103,6 +233,11 @@ export const onCreateCar = /* GraphQL */ `
         id
         username
         email
+        firstName
+        lastName
+        userRole
+        country
+        wallet
         createdAt
         updatedAt
         __typename
@@ -122,6 +257,10 @@ export const onUpdateCar = /* GraphQL */ `
       longitude
       heading
       isActive
+      status
+      arrivalDuration
+      arrivalDistance
+      orderId
       orders {
         nextToken
         __typename
@@ -131,6 +270,11 @@ export const onUpdateCar = /* GraphQL */ `
         id
         username
         email
+        firstName
+        lastName
+        userRole
+        country
+        wallet
         createdAt
         updatedAt
         __typename
@@ -150,6 +294,10 @@ export const onDeleteCar = /* GraphQL */ `
       longitude
       heading
       isActive
+      status
+      arrivalDuration
+      arrivalDistance
+      orderId
       orders {
         nextToken
         __typename
@@ -159,6 +307,11 @@ export const onDeleteCar = /* GraphQL */ `
         id
         username
         email
+        firstName
+        lastName
+        userRole
+        country
+        wallet
         createdAt
         updatedAt
         __typename
@@ -173,9 +326,9 @@ export const onCreateOrder = /* GraphQL */ `
   subscription OnCreateOrder($filter: ModelSubscriptionOrderFilterInput) {
     onCreateOrder(filter: $filter) {
       id
-      createdAt
       type
       status
+      amount
       originLatitude
       originLongitude
       destinationLatitude
@@ -185,6 +338,11 @@ export const onCreateOrder = /* GraphQL */ `
         id
         username
         email
+        firstName
+        lastName
+        userRole
+        country
+        wallet
         createdAt
         updatedAt
         __typename
@@ -197,11 +355,30 @@ export const onCreateOrder = /* GraphQL */ `
         longitude
         heading
         isActive
+        status
+        arrivalDuration
+        arrivalDistance
+        orderId
         userId
         createdAt
         updatedAt
         __typename
       }
+      driverId
+      driver {
+        id
+        username
+        email
+        firstName
+        lastName
+        userRole
+        country
+        wallet
+        createdAt
+        updatedAt
+        __typename
+      }
+      createdAt
       updatedAt
       __typename
     }
@@ -211,9 +388,9 @@ export const onUpdateOrder = /* GraphQL */ `
   subscription OnUpdateOrder($filter: ModelSubscriptionOrderFilterInput) {
     onUpdateOrder(filter: $filter) {
       id
-      createdAt
       type
       status
+      amount
       originLatitude
       originLongitude
       destinationLatitude
@@ -223,6 +400,11 @@ export const onUpdateOrder = /* GraphQL */ `
         id
         username
         email
+        firstName
+        lastName
+        userRole
+        country
+        wallet
         createdAt
         updatedAt
         __typename
@@ -235,11 +417,30 @@ export const onUpdateOrder = /* GraphQL */ `
         longitude
         heading
         isActive
+        status
+        arrivalDuration
+        arrivalDistance
+        orderId
         userId
         createdAt
         updatedAt
         __typename
       }
+      driverId
+      driver {
+        id
+        username
+        email
+        firstName
+        lastName
+        userRole
+        country
+        wallet
+        createdAt
+        updatedAt
+        __typename
+      }
+      createdAt
       updatedAt
       __typename
     }
@@ -249,9 +450,9 @@ export const onDeleteOrder = /* GraphQL */ `
   subscription OnDeleteOrder($filter: ModelSubscriptionOrderFilterInput) {
     onDeleteOrder(filter: $filter) {
       id
-      createdAt
       type
       status
+      amount
       originLatitude
       originLongitude
       destinationLatitude
@@ -261,6 +462,11 @@ export const onDeleteOrder = /* GraphQL */ `
         id
         username
         email
+        firstName
+        lastName
+        userRole
+        country
+        wallet
         createdAt
         updatedAt
         __typename
@@ -273,11 +479,30 @@ export const onDeleteOrder = /* GraphQL */ `
         longitude
         heading
         isActive
+        status
+        arrivalDuration
+        arrivalDistance
+        orderId
         userId
         createdAt
         updatedAt
         __typename
       }
+      driverId
+      driver {
+        id
+        username
+        email
+        firstName
+        lastName
+        userRole
+        country
+        wallet
+        createdAt
+        updatedAt
+        __typename
+      }
+      createdAt
       updatedAt
       __typename
     }

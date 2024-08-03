@@ -89,7 +89,7 @@ export const styles = StyleSheet.create({
   button: {
     width: itemWidth * 0.93,
     backgroundColor: COLORS.light.black,
-    padding: 10,
+    padding: 14,
     margin: 15,
     alignItems: 'center',
   },

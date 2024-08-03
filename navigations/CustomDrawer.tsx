@@ -9,9 +9,14 @@ import {styles} from '../constants/utils/styles';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import ScreenSizes from '../constants/utils/ScreenSizes';
 import {signOut} from 'aws-amplify/auth';
+import AccountDeletion from '../constants/utils/AccountDeletion';
+import {useDispatch} from 'react-redux';
+import {setUserState} from '../redux/userRedux';
 
 const CustomDrawer = (props: any) => {
   const {itemHeight} = ScreenSizes();
+
+  const dispatch = useDispatch();
 
   return (
     <DrawerContentScrollView {...props}>
@@ -85,7 +90,10 @@ const CustomDrawer = (props: any) => {
       <DrawerItemList {...props} />
 
       <Pressable
-        onPress={() => signOut()}
+        onPress={() => {
+          signOut();
+          dispatch(setUserState(null));
+        }}
         style={{
           padding: 15,
           marginTop: itemHeight * 0.1,
@@ -104,6 +112,8 @@ const CustomDrawer = (props: any) => {
           Logout
         </Text>
       </Pressable>
+
+      <AccountDeletion />
     </DrawerContentScrollView>
   );
 };

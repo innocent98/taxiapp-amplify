@@ -7,6 +7,11 @@ export const getUser = /* GraphQL */ `
       id
       username
       email
+      firstName
+      lastName
+      userRole
+      country
+      wallet
       orders {
         nextToken
         __typename
@@ -18,6 +23,10 @@ export const getUser = /* GraphQL */ `
         longitude
         heading
         isActive
+        status
+        arrivalDuration
+        arrivalDistance
+        orderId
         userId
         createdAt
         updatedAt
@@ -40,6 +49,11 @@ export const listUsers = /* GraphQL */ `
         id
         username
         email
+        firstName
+        lastName
+        userRole
+        country
+        wallet
         createdAt
         updatedAt
         __typename
@@ -58,6 +72,10 @@ export const getCar = /* GraphQL */ `
       longitude
       heading
       isActive
+      status
+      arrivalDuration
+      arrivalDistance
+      orderId
       orders {
         nextToken
         __typename
@@ -67,6 +85,11 @@ export const getCar = /* GraphQL */ `
         id
         username
         email
+        firstName
+        lastName
+        userRole
+        country
+        wallet
         createdAt
         updatedAt
         __typename
@@ -91,6 +114,10 @@ export const listCars = /* GraphQL */ `
         longitude
         heading
         isActive
+        status
+        arrivalDuration
+        arrivalDistance
+        orderId
         userId
         createdAt
         updatedAt
@@ -105,9 +132,9 @@ export const getOrder = /* GraphQL */ `
   query GetOrder($id: ID!) {
     getOrder(id: $id) {
       id
-      createdAt
       type
       status
+      amount
       originLatitude
       originLongitude
       destinationLatitude
@@ -117,6 +144,11 @@ export const getOrder = /* GraphQL */ `
         id
         username
         email
+        firstName
+        lastName
+        userRole
+        country
+        wallet
         createdAt
         updatedAt
         __typename
@@ -129,11 +161,30 @@ export const getOrder = /* GraphQL */ `
         longitude
         heading
         isActive
+        status
+        arrivalDuration
+        arrivalDistance
+        orderId
         userId
         createdAt
         updatedAt
         __typename
       }
+      driverId
+      driver {
+        id
+        username
+        email
+        firstName
+        lastName
+        userRole
+        country
+        wallet
+        createdAt
+        updatedAt
+        __typename
+      }
+      createdAt
       updatedAt
       __typename
     }
@@ -156,15 +207,17 @@ export const listOrders = /* GraphQL */ `
     ) {
       items {
         id
-        createdAt
         type
         status
+        amount
         originLatitude
         originLongitude
         destinationLatitude
         destinationLongitude
         userId
         carId
+        driverId
+        createdAt
         updatedAt
         __typename
       }

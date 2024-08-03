@@ -10,6 +10,11 @@ export const createUser = /* GraphQL */ `
       id
       username
       email
+      firstName
+      lastName
+      userRole
+      country
+      wallet
       orders {
         nextToken
         __typename
@@ -21,6 +26,10 @@ export const createUser = /* GraphQL */ `
         longitude
         heading
         isActive
+        status
+        arrivalDuration
+        arrivalDistance
+        orderId
         userId
         createdAt
         updatedAt
@@ -41,6 +50,11 @@ export const updateUser = /* GraphQL */ `
       id
       username
       email
+      firstName
+      lastName
+      userRole
+      country
+      wallet
       orders {
         nextToken
         __typename
@@ -52,6 +66,10 @@ export const updateUser = /* GraphQL */ `
         longitude
         heading
         isActive
+        status
+        arrivalDuration
+        arrivalDistance
+        orderId
         userId
         createdAt
         updatedAt
@@ -72,6 +90,11 @@ export const deleteUser = /* GraphQL */ `
       id
       username
       email
+      firstName
+      lastName
+      userRole
+      country
+      wallet
       orders {
         nextToken
         __typename
@@ -83,6 +106,10 @@ export const deleteUser = /* GraphQL */ `
         longitude
         heading
         isActive
+        status
+        arrivalDuration
+        arrivalDistance
+        orderId
         userId
         createdAt
         updatedAt
@@ -106,6 +133,10 @@ export const createCar = /* GraphQL */ `
       longitude
       heading
       isActive
+      status
+      arrivalDuration
+      arrivalDistance
+      orderId
       orders {
         nextToken
         __typename
@@ -115,6 +146,11 @@ export const createCar = /* GraphQL */ `
         id
         username
         email
+        firstName
+        lastName
+        userRole
+        country
+        wallet
         createdAt
         updatedAt
         __typename
@@ -137,6 +173,10 @@ export const updateCar = /* GraphQL */ `
       longitude
       heading
       isActive
+      status
+      arrivalDuration
+      arrivalDistance
+      orderId
       orders {
         nextToken
         __typename
@@ -146,6 +186,11 @@ export const updateCar = /* GraphQL */ `
         id
         username
         email
+        firstName
+        lastName
+        userRole
+        country
+        wallet
         createdAt
         updatedAt
         __typename
@@ -168,6 +213,10 @@ export const deleteCar = /* GraphQL */ `
       longitude
       heading
       isActive
+      status
+      arrivalDuration
+      arrivalDistance
+      orderId
       orders {
         nextToken
         __typename
@@ -177,6 +226,11 @@ export const deleteCar = /* GraphQL */ `
         id
         username
         email
+        firstName
+        lastName
+        userRole
+        country
+        wallet
         createdAt
         updatedAt
         __typename
@@ -194,9 +248,9 @@ export const createOrder = /* GraphQL */ `
   ) {
     createOrder(input: $input, condition: $condition) {
       id
-      createdAt
       type
       status
+      amount
       originLatitude
       originLongitude
       destinationLatitude
@@ -206,6 +260,11 @@ export const createOrder = /* GraphQL */ `
         id
         username
         email
+        firstName
+        lastName
+        userRole
+        country
+        wallet
         createdAt
         updatedAt
         __typename
@@ -218,11 +277,30 @@ export const createOrder = /* GraphQL */ `
         longitude
         heading
         isActive
+        status
+        arrivalDuration
+        arrivalDistance
+        orderId
         userId
         createdAt
         updatedAt
         __typename
       }
+      driverId
+      driver {
+        id
+        username
+        email
+        firstName
+        lastName
+        userRole
+        country
+        wallet
+        createdAt
+        updatedAt
+        __typename
+      }
+      createdAt
       updatedAt
       __typename
     }
@@ -235,9 +313,9 @@ export const updateOrder = /* GraphQL */ `
   ) {
     updateOrder(input: $input, condition: $condition) {
       id
-      createdAt
       type
       status
+      amount
       originLatitude
       originLongitude
       destinationLatitude
@@ -247,6 +325,11 @@ export const updateOrder = /* GraphQL */ `
         id
         username
         email
+        firstName
+        lastName
+        userRole
+        country
+        wallet
         createdAt
         updatedAt
         __typename
@@ -259,11 +342,30 @@ export const updateOrder = /* GraphQL */ `
         longitude
         heading
         isActive
+        status
+        arrivalDuration
+        arrivalDistance
+        orderId
         userId
         createdAt
         updatedAt
         __typename
       }
+      driverId
+      driver {
+        id
+        username
+        email
+        firstName
+        lastName
+        userRole
+        country
+        wallet
+        createdAt
+        updatedAt
+        __typename
+      }
+      createdAt
       updatedAt
       __typename
     }
@@ -276,9 +378,9 @@ export const deleteOrder = /* GraphQL */ `
   ) {
     deleteOrder(input: $input, condition: $condition) {
       id
-      createdAt
       type
       status
+      amount
       originLatitude
       originLongitude
       destinationLatitude
@@ -288,6 +390,11 @@ export const deleteOrder = /* GraphQL */ `
         id
         username
         email
+        firstName
+        lastName
+        userRole
+        country
+        wallet
         createdAt
         updatedAt
         __typename
@@ -300,11 +407,30 @@ export const deleteOrder = /* GraphQL */ `
         longitude
         heading
         isActive
+        status
+        arrivalDuration
+        arrivalDistance
+        orderId
         userId
         createdAt
         updatedAt
         __typename
       }
+      driverId
+      driver {
+        id
+        username
+        email
+        firstName
+        lastName
+        userRole
+        country
+        wallet
+        createdAt
+        updatedAt
+        __typename
+      }
+      createdAt
       updatedAt
       __typename
     }

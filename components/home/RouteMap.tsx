@@ -1,8 +1,5 @@
-import {View, Text, Image, FlatList} from 'react-native';
-import React from 'react';
-import {styles} from '../../constants/utils/styles';
+import React, {useEffect, useRef} from 'react';
 import MapView, {Marker, PROVIDER_GOOGLE} from 'react-native-maps';
-import {cars} from '../../assets/UberAssets/data/cars';
 import MapViewDirections from 'react-native-maps-directions';
 import {googleApi} from '../../env.config';
 
@@ -12,6 +9,8 @@ interface ScreenProps {
 }
 
 const RouteMap: React.FC<ScreenProps> = ({originPlace, destinationPlace}) => {
+  const mapRef = useRef<MapView>(null);
+
   const origin = {
     latitude: originPlace?.details?.geometry?.location?.lat,
     longitude: originPlace?.details?.geometry?.location?.lng,
@@ -22,8 +21,24 @@ const RouteMap: React.FC<ScreenProps> = ({originPlace, destinationPlace}) => {
     longitude: destinationPlace?.details?.geometry?.location?.lng,
   };
 
+  useEffect(() => {
+    if (mapRef.current) {
+      setTimeout(() => {
+        // Create an array with origin and destination coordinates
+        const coordinates = [origin, destination];
+
+        // Fit the map to the coordinates with padding
+        mapRef?.current?.fitToCoordinates(coordinates, {
+          edgePadding: {top: 50, right: 50, bottom: 50, left: 50},
+          animated: true,
+        });
+      }, 2000);
+    }
+  }, [origin, destination]);
+
   return (
     <MapView
+      ref={mapRef}
       style={{height: '100%', width: '100%'}}
       provider={PROVIDER_GOOGLE}
       showsUserLocation={true}

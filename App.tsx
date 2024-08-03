@@ -7,23 +7,22 @@
 
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import React, {useEffect} from 'react';
-import {
-  Platform,
-  StatusBar,
-  useColorScheme,
-} from 'react-native';
+import {Platform, StatusBar, useColorScheme} from 'react-native';
 
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {PermissionsAndroid} from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
 import MainApp from './MainApp';
 import {NavigationContainer} from '@react-navigation/native';
-import {withAuthenticator} from '@aws-amplify/ui-react-native';
+import {ToastProvider} from 'react-native-toast-notifications';
+import {Provider} from 'react-redux';
+import {persistor, store} from './redux/store';
+import {PersistGate} from 'redux-persist/integration/react';
 
 navigator.geolocation = require('@react-native-community/geolocation');
 
 function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+  const isDarkMode = useColorScheme() === 'light';
 
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
@@ -63,16 +62,22 @@ function App(): React.JSX.Element {
 
   return (
     <GestureHandlerRootView style={{flex: 1}}>
-      <NavigationContainer>
-        <StatusBar
-          barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-          backgroundColor={backgroundStyle.backgroundColor}
-        />
+      <Provider store={store}>
+        <PersistGate loading={null} persistor={persistor}>
+          <ToastProvider>
+            <NavigationContainer>
+              <StatusBar
+                barStyle={isDarkMode ? 'light-content' : 'dark-content'}
+                backgroundColor={backgroundStyle.backgroundColor}
+              />
 
-        <MainApp />
-      </NavigationContainer>
+              <MainApp />
+            </NavigationContainer>
+          </ToastProvider>
+        </PersistGate>
+      </Provider>
     </GestureHandlerRootView>
   );
 }
 
-export default withAuthenticator(App);
+export default App;

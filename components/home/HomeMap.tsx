@@ -1,10 +1,10 @@
-import {View, Text, Image, FlatList} from 'react-native';
-import React, {useEffect, useState} from 'react';
-import {styles} from '../../constants/utils/styles';
+import {Image} from 'react-native';
+import React, {useCallback, useEffect, useState} from 'react';
 import MapView, {Marker, PROVIDER_GOOGLE} from 'react-native-maps';
-// import {cars} from '../../assets/UberAssets/data/cars';
 import {generateClient} from 'aws-amplify/api';
 import {listCars} from '../../src/graphql/queries';
+import Geolocation from '@react-native-community/geolocation';
+import useLocation from '../../constants/hooks/useLocation';
 
 const client = generateClient();
 
@@ -21,22 +21,36 @@ interface Response {
   };
 }
 
+interface Location {
+  details: {geometry: {location: {}}};
+}
+
 const HomeMap = () => {
+  const {location} = useLocation();
+
   const [cars, setCars] = useState<any | []>([]);
+  const [currentLoc, setCurrentLoc] = useState<null | any>(null);
+
+  const fetchCars = useCallback(async () => {
+    try {
+      const response = (await client.graphql({
+        query: listCars,
+        variables: {filter: {isActive: {eq: true}}},
+      })) as Response;
+
+      setCars(response?.data?.listCars?.items);
+    } catch (error) {
+      console.log(error);
+    }
+  }, []);
 
   useEffect(() => {
-    const fetchCars = async () => {
-      try {
-        const response = (await client.graphql({
-          query: listCars,
-        })) as Response;
-
-        setCars(response?.data?.listCars?.items);
-      } catch (error) {}
-    };
-
     fetchCars();
   }, []);
+
+  // TODO: make subscription for all cars for real-time updates of cars
+
+  // console.log(cars)
 
   const getImageSource = (type: String) => {
     switch (type) {
@@ -51,6 +65,18 @@ const HomeMap = () => {
     }
   };
 
+  useEffect(() => {
+    // Get current location
+    Geolocation.getCurrentPosition(
+      position => {
+        const {latitude, longitude} = position.coords;
+        setCurrentLoc({latitude, longitude});
+      },
+      error => console.log('Error getting location:', error),
+      {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000},
+    );
+  }, []);
+
   return (
     <MapView
       style={{height: '100%', width: '100%'}}
@@ -58,8 +84,8 @@ const HomeMap = () => {
       showsUserLocation={true}
       showsMyLocationButton={false}
       initialRegion={{
-        latitude: 28.450627,
-        longitude: -16.263045,
+        latitude: location?.details?.geometry?.location?.lat,
+        longitude: location?.details?.geometry?.location?.lng,
         latitudeDelta: 0.0222,
         longitudeDelta: 0.0121,
       }}>
