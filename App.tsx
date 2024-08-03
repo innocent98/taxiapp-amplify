@@ -8,19 +8,17 @@
 import {Platform, PermissionsAndroid} from 'react-native';
 import React, {useEffect} from 'react';
 import {StatusBar, useColorScheme} from 'react-native';
-
 import {Colors} from 'react-native/Libraries/NewAppScreen';
-import Home from './screens/home/Home';
 import Geolocation from '@react-native-community/geolocation';
-import {withAuthenticator} from '@aws-amplify/ui-react-native';
-import {generateClient} from 'aws-amplify/api';
-import {getCurrentUser} from 'aws-amplify/auth';
-import {getCarId} from './src/graphql/queries';
-import {createCar} from './src/graphql/mutations';
+import {NavigationContainer} from '@react-navigation/native';
+import MainApp from './MainApp';
+import {GestureHandlerRootView} from 'react-native-gesture-handler';
+import {Provider} from 'react-redux';
+import {persistor, store} from './redux/store';
+import {PersistGate} from 'redux-persist/integration/react';
+import {ToastProvider} from 'react-native-toast-notifications';
 
 navigator.geolocation = require('@react-native-community/geolocation');
-
-const client = generateClient();
 
 interface Car {
   data: {getCar: any};
@@ -65,52 +63,23 @@ function App(): React.JSX.Element {
     }
   }, []);
 
-  useEffect(() => {
-    const updateUsserCar = async () => {
-      const {userId} = await getCurrentUser();
-
-      if (!userId) {
-        return;
-      }
-
-      const carData = (await client.graphql({
-        query: getCarId,
-        variables: {id: userId},
-      })) as Car;
-
-      // console.log(carData.data);
-
-      if (carData?.data?.getCar) {
-        console.log('Car exist');
-        return;
-      } else {
-        const newCar = {
-          id: userId,
-          type: 'UberX',
-          userId: userId,
-        };
-
-        await client.graphql({
-          query: createCar,
-          variables: {input: newCar},
-        });
-
-        console.log('Car registered');
-      }
-    };
-
-    updateUsserCar();
-  }, []);
-
   return (
-    <>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <Home />
-    </>
+    <GestureHandlerRootView style={{flex: 1}}>
+      <Provider store={store}>
+        <PersistGate loading={null} persistor={persistor}>
+          <ToastProvider>
+            <NavigationContainer>
+              <StatusBar
+                barStyle={isDarkMode ? 'light-content' : 'dark-content'}
+                backgroundColor={backgroundStyle.backgroundColor}
+              />
+              <MainApp />
+            </NavigationContainer>
+          </ToastProvider>
+        </PersistGate>
+      </Provider>
+    </GestureHandlerRootView>
   );
 }
 
-export default withAuthenticator(App);
+export default App;

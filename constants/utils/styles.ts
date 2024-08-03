@@ -127,8 +127,8 @@ export const styles = StyleSheet.create({
     width: '100%',
     backgroundColor: COLORS.light.white,
     paddingHorizontal: 20,
-    gap:5,
-    justifyContent:'center'
+    gap: 5,
+    justifyContent: 'center',
   },
 
   bottomDet: {
@@ -151,7 +151,7 @@ export const styles = StyleSheet.create({
     padding: 20,
     width: '90%',
     bottom: 0,
-    height: itemHeight * 0.25,
+    height: itemHeight * 0.3,
     alignItems: 'center',
     justifyContent: 'center',
     gap: 20,

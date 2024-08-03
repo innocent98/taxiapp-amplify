@@ -1,58 +1,67 @@
-import {View, Text, SafeAreaView, Pressable} from 'react-native';
-import React, {useEffect, useState} from 'react';
+import {View, Text, SafeAreaView} from 'react-native';
+import React, {useCallback, useEffect, useState} from 'react';
 import ScreenSizes from '../../constants/utils/ScreenSizes';
 import {styles} from '../../constants/utils/styles';
 import HomeMap from '../../components/home/HomeMap';
-import Entypo from 'react-native-vector-icons/Entypo';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import Feather from 'react-native-vector-icons/Feather';
-import {COLORS} from '../../constants';
 import NewOrderPopup from '../../components/home/NewOrderPopup';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {generateClient} from 'aws-amplify/api';
-import {getCurrentUser} from 'aws-amplify/auth';
-import {getCar} from '../../src/graphql/queries';
-import {updateCar} from '../../src/graphql/mutations';
+import {getCar, getOrder, listOrders} from '../../src/graphql/queries';
+import {updateCar, updateOrder} from '../../src/graphql/mutations';
+import {StackNavigationProp} from '@react-navigation/stack';
+import {StackParamList} from '../../navigations/navigations';
+import {useNavigation} from '@react-navigation/native';
+import useUser from '../../constants/hooks/useUser';
+import HomeComponents from '../../components/home/HomeComponents';
+import {
+  ARRIVAL,
+  COMPLETED,
+  DROPPING_OFF_CLIENT,
+  En_route,
+  PICKING_UP_CLIENT,
+} from '../../constants/orderStatus';
 
 const client = generateClient();
 
+type NavigationProp = StackNavigationProp<StackParamList>;
+
 interface Car {
-  data: {getCar: any; updateCar: any};
+  data: {
+    getCar: any;
+    updateCar: any;
+    listOrders: {items: any};
+    updateOrder: any;
+    getOrder: any;
+  };
 }
 
 const Home = () => {
   const {itemHeight} = ScreenSizes();
 
+  const {user} = useUser();
+
+  const navigation = useNavigation<NavigationProp>();
+
   const [order, setOrder] = useState<null | any>(null);
   const [car, setCar] = useState<null | any>(null);
   const [duration, setDuration] = useState<null | number>(null);
   const [distance, setDistance] = useState<null | number>(null);
-  const [newOrder, setNewOrder] = useState<null | any>({
-    id: '1',
-    type: 'UberX',
-    originLatitude: 4.9911616,
-    originLongitude: 7.9586544,
-    destinationLatitude: 4.9441051,
-    destinationLongitude: 7.9925957,
-    price: '25.00',
-    duration: '20',
+  const [newOrders, setNewOrders] = useState<null | any>([]);
+  const [statusText, setStatusText] = useState('');
 
-    user: {
-      rating: 4.8,
-      name: 'Clara',
-    },
-  });
-
+  // check if driver has a car registered, otherwise, register one
   const fetchCar = async () => {
     try {
-      const {userId} = await getCurrentUser();
-
       const carData = (await client.graphql({
         query: getCar,
-        variables: {id: userId},
+        variables: {id: user},
       })) as Car;
 
-      setCar(carData.data.getCar);
+      if (carData?.data?.getCar) {
+        setCar(carData.data.getCar);
+      } else {
+        navigation.navigate('RegisterCar');
+      }
     } catch (error) {}
   };
 
@@ -60,14 +69,13 @@ const Home = () => {
     fetchCar();
   }, []);
 
+  // change visibility status
   const handleGoPress = async () => {
     try {
-      const {userId} = await getCurrentUser();
-
       const res = (await client.graphql({
         query: updateCar,
         variables: {
-          input: {id: userId, isActive: car?.isActive ? false : true},
+          input: {id: user, isActive: car?.isActive ? false : true},
         },
       })) as Car;
 
@@ -75,172 +83,227 @@ const Home = () => {
     } catch (error) {}
   };
 
-  const onDecline = () => {
-    setNewOrder(null);
-  };
+  // fetch orders on initial render
+  const fetchOrders = async () => {
+    try {
+      const orderData = (await client.graphql({
+        query: listOrders,
+        variables: {filter: {status: {eq: 'NEW'}}},
+      })) as Car;
 
-  const onAccept = () => {
-    setOrder(newOrder);
-    setNewOrder(null);
+      setNewOrders(orderData.data.listOrders.items);
+    } catch (error) {}
   };
 
   useEffect(() => {
-    if (distance && distance < 0.3) {
-      setOrder({...order, pickedUp: true});
+    if (car?.isActive) {
+      fetchOrders();
     }
-  }, [distance]);
+  }, [car?.isActive]);
+
+  // decline order
+  const onDecline = (id: any) => {
+    // setNewOrders(newOrders.slice(1));
+    setNewOrders(newOrders.filter((item: any) => item?.id !== id));
+  };
+
+  // accept order
+  const onAccept = async (id: any) => {
+    const input = {
+      id: id,
+      status: PICKING_UP_CLIENT,
+      carId: car?.id,
+      driverId: user,
+    };
+
+    try {
+      const orderData = (await client.graphql({
+        query: updateOrder,
+        variables: {input},
+      })) as Car;
+
+      setOrder(orderData.data.updateOrder);
+    } catch (error) {}
+
+    setNewOrders(newOrders.slice(1));
+  };
+
+  // update car if the order has been accepted
+  const onOrderAcceptCarUpdate = async (input: object) => {
+    if (order?.status === PICKING_UP_CLIENT) {
+      try {
+        const orderData = (await client.graphql({
+          query: updateOrder,
+          variables: {input: {id: order?.id, status: PICKING_UP_CLIENT}},
+        })) as Car;
+
+        setOrder(orderData.data.updateOrder);
+
+        const carData = (await client.graphql({
+          query: updateCar,
+          variables: {input},
+        })) as Car;
+
+        setCar(carData.data.updateCar);
+      } catch (error) {}
+    }
+  };
 
   useEffect(() => {
-    if (order && order.pickedUp && distance && distance < 0.2) {
-      setOrder({...order, isFinished: true});
+    if (order?.status === PICKING_UP_CLIENT) {
+      onOrderAcceptCarUpdate({
+        id: car?.id,
+        arrivalDuration: duration,
+        arrivalDistance: distance,
+        status: En_route,
+        orderId: order?.id,
+      });
     }
-  }, [distance]);
+  }, [order?.status]);
+
+  // console.log(car)
+
+  // check if car is currently en_route and fetch car order using the orderId
+  const fetchOrder = async () => {
+    try {
+      const orderData = (await client.graphql({
+        query: getOrder,
+        variables: {id: car?.orderId},
+      })) as Car;
+
+      setOrder(orderData.data.getOrder);
+
+      // console.log(orderData.data.getOrder)
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    if (car?.status === En_route) {
+      fetchOrder();
+    }
+  }, [car?.status]);
+
+  // update order status sequentially in respect to current status
+  const updateOrderStatus = async () => {
+    try {
+      if (order?.status === PICKING_UP_CLIENT) {
+        const orderData = (await client.graphql({
+          query: updateOrder,
+          variables: {input: {id: order?.id, status: DROPPING_OFF_CLIENT}},
+        })) as Car;
+
+        setOrder(orderData.data.updateOrder);
+      }
+
+      if (order?.status === DROPPING_OFF_CLIENT) {
+        const orderData = (await client.graphql({
+          query: updateOrder,
+          variables: {input: {id: order?.id, status: ARRIVAL}},
+        })) as Car;
+
+        setOrder(orderData.data.updateOrder);
+      }
+
+      if (order?.status === ARRIVAL) {
+        (await client.graphql({
+          query: updateOrder,
+          variables: {input: {id: order?.id, status: COMPLETED}},
+        })) as Car;
+
+        const carData = (await client.graphql({
+          query: updateCar,
+          variables: {
+            input: {
+              id: car?.id,
+              status: null,
+              orderId: null,
+            },
+          },
+        })) as Car;
+
+        setCar(carData.data.updateCar);
+        setOrder(null);
+        setDuration(null);
+        setDistance(null);
+      }
+
+      setStatusText('');
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  // update status text with respect to distance at different stage of journey
+  useEffect(() => {
+    if (order?.status === PICKING_UP_CLIENT && distance && distance < 0.2) {
+      setStatusText(PICKING_UP_CLIENT);
+    }
+
+    if (order?.status === DROPPING_OFF_CLIENT && distance && distance < 0.2) {
+      setStatusText(DROPPING_OFF_CLIENT);
+    }
+
+    if (order?.status === ARRIVAL) {
+      setStatusText(ARRIVAL);
+    }
+
+    if (order?.status === COMPLETED) {
+      setStatusText('');
+    }
+  }, [distance, order]);
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <View style={{height: itemHeight * 0.91, opacity: newOrder ? 0.3 : 1}}>
+      <View
+        style={{
+          height: itemHeight * 0.91,
+          opacity:
+            car?.status !== En_route && newOrders.length > 0 && !order
+              ? 0.3
+              : 1,
+        }}>
         <HomeMap
           order={order}
           setDuration={setDuration}
           setDistance={setDistance}
           distance={distance}
+          duration={duration}
+          onOrderAcceptCarUpdate={onOrderAcceptCarUpdate}
+          car={car}
         />
 
-        <Pressable style={[styles.roundButton, {top: 10, left: 10}]}>
-          <Entypo name="menu" color={COLORS.light.primary} size={20} />
-        </Pressable>
-
-        <Pressable
-          style={[
-            styles.roundButton,
-            {
-              top: 10,
-              backgroundColor: COLORS.light.primary,
-              padding: 8,
-              paddingHorizontal: 14,
-              alignSelf: 'center',
-            },
-          ]}>
-          <Text style={styles.mediumText}>$10.00</Text>
-        </Pressable>
-
-        <Pressable style={[styles.roundButton, {top: 10, right: 10}]}>
-          <Feather name="search" color={COLORS.light.primary} size={20} />
-        </Pressable>
-
-        <Pressable style={[styles.roundButton, {bottom: 10, left: 10}]}>
-          <MaterialCommunityIcons
-            name="google-lens"
-            color={COLORS.light.primary}
-            size={20}
-          />
-        </Pressable>
-
-        <Pressable
-          onPress={handleGoPress}
-          style={[
-            styles.roundButton,
-            {
-              bottom: 10,
-              backgroundColor: COLORS.light.link,
-              height: 60,
-              width: 60,
-              borderRadius: 50,
-              alignSelf: 'center',
-              justifyContent: 'center',
-            },
-          ]}>
-          <Text style={[styles.mediumText, {textAlign: 'center'}]}>
-            {car?.isActive ? 'END' : 'GO'}
-          </Text>
-        </Pressable>
-
-        <Pressable style={[styles.roundButton, {bottom: 10, right: 10}]}>
-          <MaterialCommunityIcons
-            name="message-plus"
-            color={COLORS.light.primary}
-            size={20}
-          />
-        </Pressable>
-
-        <View style={[styles.bottomCon, {height: itemHeight * 0.09}]}>
-          {order && order.isFinished && (
-            <Pressable
-              style={{backgroundColor: COLORS.light.primary, padding: 10}}>
-              <Text
-                style={[
-                  styles.mediumText,
-                  {color: COLORS.light.white, textAlign: 'center'},
-                ]}>
-                Complete {order.type} with {order.user.name}
-              </Text>
-            </Pressable>
-          )}
-
-          {order && !order.isFinished && (
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}>
-              <Text style={[styles.smallText, {color: COLORS.light.black}]}>
-                {duration?.toFixed(0)} mins
-              </Text>
-
-              <View
-                style={[
-                  styles.iconContainer,
-                  {
-                    backgroundColor: COLORS.light.link,
-                    borderWidth: 2,
-                    borderColor: COLORS.light.white,
-                    padding: 3,
-                  },
-                ]}>
-                <MaterialIcons
-                  name="person"
-                  size={12}
-                  color={COLORS.light.white}
-                />
-              </View>
-
-              <Text style={[styles.smallText, {color: COLORS.light.black}]}>
-                {distance?.toFixed(2)} km
-              </Text>
-            </View>
-          )}
-
-          <View style={styles.bottomDet}>
-            <MaterialCommunityIcons
-              name="tune-variant"
-              color={COLORS.light.primary}
-              size={22}
-            />
-
-            <Text style={[styles.mediumText, {color: COLORS.light.textSoft}]}>
-              {car?.isActive
-                ? "You're online"
-                : order && order.pickedUp
-                ? `Dropping off ${order.user.name}`
-                : order
-                ? `Picking up ${order.user.name}`
-                : "You're offline"}
-            </Text>
-            <Entypo name="menu" color={COLORS.light.primary} size={22} />
-          </View>
-        </View>
+        <HomeComponents
+          order={order}
+          car={car}
+          distance={distance}
+          duration={duration}
+          handleGoPress={handleGoPress}
+          statusText={statusText}
+          updateOrderStatus={updateOrderStatus}
+        />
       </View>
 
-      {newOrder && (
-        <>
-          <Text style={styles.declineBtn} onPress={onDecline}>
-            <MaterialCommunityIcons name="close" /> Decline
-          </Text>
+      {car?.status !== En_route &&
+        newOrders.length > 0 &&
+        !order &&
+        car?.isActive && (
+          <>
+            {newOrders?.map((item: any, index: number) => (
+              <Text
+                style={styles.declineBtn}
+                onPress={() => onDecline(item?.id)}
+                key={index}>
+                <MaterialCommunityIcons name="close" /> Decline
+              </Text>
+            ))}
 
-          <NewOrderPopup onAccept={onAccept} newOrder={newOrder} />
-        </>
-      )}
+            {newOrders?.map((item: any, index: number) => (
+              <NewOrderPopup onAccept={onAccept} newOrder={item} key={index} />
+            ))}
+          </>
+        )}
     </SafeAreaView>
   );
 };
